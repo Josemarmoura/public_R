@@ -1,0 +1,46 @@
+---
+title: "Input student data and calc the Perc of missing"
+output: html_notebook
+---
+
+```{r}
+#{r} IS THIS LINE DUPLICATED?
+readData <- function() {
+  # Insert categories here:
+  df <- data.frame(
+    ID = c(), 
+    Name = c(), 
+    Course = c(),
+    Hours = c(),
+    Missing = c()
+    # don´t put , in the last line above.
+    )
+  while(TRUE) {
+    my.id <- readline(prompt="ID Num: ")
+    # stop reading if no data was typed in:
+    if (my.id == '') 
+      break
+    my.name <- readline(prompt="Name: ")
+    my.course <- readline(prompt="Course: ")
+    my.hours <- as.integer(readline(prompt="Total Hours:"))
+    my.missing <- as.integer(readline(prompt = "Total Missing:"))
+    
+    # add the read data to the bottom of the dataframe
+    df <- rbind(df, data.frame(
+    # Repeat the same categories here:
+      ID = c(my.id), 
+      Name = c(my.name), 
+      Course = c(my.course),
+      Hours = c(my.hours),
+      Missing = c(my.missing) 
+      # don´t put , in the last line above.
+      )
+      )
+  }
+  df
+}
+# now call the function, it will allow inputs until an empty year is typed
+df2 <- readData()
+df2$Per_missing =  ((df2$Missing / df2$Hours) *100) 
+print(df2)
+```
