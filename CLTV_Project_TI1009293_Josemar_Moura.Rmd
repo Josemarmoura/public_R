@@ -1,0 +1,59 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
+
+```{r}
+
+library(dplyr)
+df <- read.csv("C:/Users/jmcme/OneDrive/Trebas Course/1.3 Trebas Curse - 201-MAN-TQ/1.3.2 Activity/ABD_CSA_07-main/customer_eval.csv")
+rename(df, InvoiceDate_Old = InvoiceDate)
+
+df <- transform(df,"InvoiceDate"=as.Date(substr(InvoiceDate,1,10),"%m/%d/%Y" ))
+df$TotalValue <- df$Quantity * df$UnitPrice
+df_customer <- df %>%
+  group_by(CustomerID) %>%
+  summarize(
+    CustomerLifetime = as.numeric(2), # I am supposed 2 months.
+    #CustomerLifetime = as.numeric(max(InvoiceDate) - min(InvoiceDate)), 
+    NumPurchases = n(), # calcula o número total de compras
+    TotalValue = sum(TotalValue) # calcula o valor monetário total
+  )
+df_customer$AvgPurchaseValue <- df_customer$TotalValue / df_customer$NumPurchases
+df_customer$PurchaseFrequency <- df_customer$NumPurchases / df_customer$CustomerLifetime
+df_customer$CustomerValue <- df_customer$AvgPurchaseValue * df_customer$PurchaseFrequency
+df_customer$CLV <- df_customer$CustomerValue * df_customer$CustomerLifetime
+print(df_customer)
+write.table(df_customer,"CLV_report.txt", sep=",")  # Export to .txt file into the same folder.
+# exibe os resultados
+CustomerLifetime <- sum(df_customer$CustomerLifetime)
+NumPurchases <- sum(df_customer$NumPurchases)
+TotalValue <- sum(df_customer$TotalValue)
+AvgPurchaseValue <- sum(df_customer$AvgPurchaseValue)
+PurchaseFrequency <- sum(df_customer$PurchaseFrequency)
+CustomerValue <- sum(df_customer$AvgPurchaseValue) * sum(df_customer$PurchaseFrequency)
+CLV <- sum(df_customer$CustomerValue) * sum(df_customer$CustomerLifetime)
+
+CLV_Report <- data.frame(
+  Total_Rows = length(unique(df_customer$CustomerID)),
+  CustomerLifetime2 = CustomerLifetime,
+  NumPurchases = NumPurchases,
+  TotalValue = TotalValue,
+  AvgPurchaseValue =AvgPurchaseValue,
+  PurchaseFrequency = PurchaseFrequency,
+  CustomerValue = CustomerValue,
+  CLV
+  )
+#CLV_Report <- df_customer%>%mutate(CustomerLifetime=sum(CustomerLifetime))
+print(CLV_Report)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
